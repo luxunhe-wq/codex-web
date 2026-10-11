@@ -70,20 +70,32 @@ codex login status
 已安装 Docker Engine 和 Docker Compose v2 的 Linux 服务器，可直接构建镜像。镜像包含 Python、Node.js 和 Codex CLI，
 对话附件、Codex 登录配置和项目文件使用持久化数据卷保存。
 
-在下载的项目目录内运行：
+在下载的项目目录内，只需运行：
 
 ```sh
-cp .env.docker.example .env.docker
-docker compose --env-file .env.docker build
-docker compose --env-file .env.docker run --rm -it codex-web codex login --device-auth
-# 先用容器中的 Codex 验证能正常对话，再退出。
-docker compose --env-file .env.docker run --rm -it codex-web codex
-docker compose --env-file .env.docker run --rm -it codex-web python /app/server.py --init-admin
-docker compose --env-file .env.docker up -d
+bash deploy.sh
 ```
 
-浏览器访问 `http://127.0.0.1:8080`。Docker 模式不必运行下方的原生安装命令。
-自定义模型服务、项目目录挂载、HTTPS、备份和升级见[完整 Docker 说明](docs/DOCKER.zh-CN.md)。
+脚本会自动准备配置、构建环境，引导你填写自己的模型 API（密钥隐藏输入）、登录 Codex，或导入已有配置，
+随后创建网页账号并启动服务。再次运行会保留配置、账号和数据。整个过程不需要手动输入 Docker 命令。
+首次使用时，在网页发送测试消息确认模型服务可用。
+
+```sh
+bash deploy.sh status       # 查看运行状态
+bash deploy.sh stop         # 停止服务，保留数据
+bash deploy.sh              # 再次启动
+bash deploy.sh configure    # 修改模型配置
+bash deploy.sh logs         # 查看日志
+```
+
+首次下载遇到网络问题，可运行 `bash deploy.sh --mirror` 使用备选下载源。
+浏览器访问 `http://127.0.0.1:8080`。远程访问、项目挂载、HTTPS、备份和升级见[完整 Docker 说明](docs/DOCKER.zh-CN.md)。
+
+还没有下载项目时，可以复制这一行开始（需已安装 Git、Docker 和 Compose v2）：
+
+```sh
+git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh
+```
 
 ## 原生安装并启动网页
 

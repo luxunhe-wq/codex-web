@@ -14,7 +14,47 @@ Codex 的 Linux 沙箱需要非特权用户命名空间。Compose 使用仓库�
 **使用网页前，仍需先在容器内配置好 Codex 登录或模型服务，确认 Codex 能正常对话。**
 宿主机上已有的 Codex 登录不会自动进入容器；模型账号、密钥和额度由使用者自己提供。
 
-## 首次部署
+## 一条命令部署
+
+已安装 Git、Docker 和 Compose v2（需支持 `up --wait`）时，复制这一行：
+
+```sh
+git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh
+```
+
+已经下载项目的用户，只需在项目目录运行 `bash deploy.sh`。脚本会：
+
+1. 自动准备 `.env.docker` 和运行环境。
+2. 引导选择填写模型 API、登录 Codex，或导入已有的 `config.toml` / `auth.json`。
+3. 提示创建网页账号，然后后台启动服务并显示访问地址。
+
+填写 API 时，需要自己的厂商地址、模型名称和 API 密钥，服务需支持 Codex 使用的 Responses API。
+密钥输入不会显示，也不会写入项目源码、命令参数或镜像，只保存在私有数据卷里。
+导入操作只读取你选择的配置和登录文件，不导入历史、插件或宿主机环境变量；若配置依赖环境变量密钥，建议选择填写 API。
+从自定义 API 切换到 Codex 登录时，旧配置会备份到数据卷内的 `config.before-login.toml`，避免继续使用旧模型服务。
+配置完成后，在网页发送一条测试消息确认模型连接正常。
+
+再次执行 `bash deploy.sh` 会复用配置、账号和数据。常用操作也可以通过脚本完成：
+
+```sh
+bash deploy.sh status       # 查看状态
+bash deploy.sh stop         # 停止服务，保留数据
+bash deploy.sh              # 再次启动
+bash deploy.sh configure    # 修改模型配置
+bash deploy.sh logs         # 查看日志
+```
+
+首次下载失败或很慢时，可执行 `bash deploy.sh --mirror` 使用 ECR Public、Berkeley Debian 镜像和华为云 Python 软件源。
+如已有本地镜像且想强制重新构建，使用 `bash deploy.sh build --mirror`。
+这些选项不会修改宿主机的 Docker 或软件源配置。首次配置需交互终端，不能通过 `curl | bash` 输入配置。
+英文引导使用 `bash deploy.sh --en`。
+
+默认访问 `http://127.0.0.1:8080`。远程服务器使用下方的 SSH 转发，手机和公网访问见 HTTPS 部署章节。
+脚本验证容器健康和 Codex 沙箱，模型登录、额度及服务连通性由实际对话验证。
+
+## 手动部署（可选）
+
+以下是引导脚本所封装的 Docker 操作，需要自行控制流程时使用：
 
 ```sh
 git clone https://github.com/luxunhe-wq/codex-.git codex-web

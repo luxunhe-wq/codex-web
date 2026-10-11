@@ -17,7 +17,47 @@ the server administrator must configure support first.
 **Configure and verify Codex inside the container before using the website.** Your host Codex
 sign-in is not imported automatically. You supply your own account/provider credentials and quota.
 
-## First installation
+## One-command guided deployment
+
+With Git, Docker and Compose v2 (supporting `up --wait`) installed, paste this line:
+
+```sh
+git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh --en
+```
+
+From an existing checkout, run `bash deploy.sh --en`. The wizard prepares `.env.docker` and the runtime,
+guides you through entering your own model API, signing in to Codex or importing `config.toml` / `auth.json`,
+then creates the web account and starts the service.
+
+For a custom provider, supply its URL, model name and API key; it must support the Responses API used by Codex.
+Keys are entered without echo and saved only in the private persistent volume, never in source files,
+command arguments or the image. Imports include only configuration/authentication files, not history,
+plugins or host environment variables. Choose API entry if your old configuration requires a key from an environment variable.
+Switching from a custom API to Codex sign-in backs up the old configuration as `config.before-login.toml`
+inside the volume and resets the provider override. Send a test message in the website to verify model connectivity.
+
+Rerunning keeps configuration, accounts and data:
+
+```sh
+bash deploy.sh status --en
+bash deploy.sh stop --en
+bash deploy.sh --en
+bash deploy.sh configure --en
+bash deploy.sh logs --en
+```
+
+For slow/unreachable download sources, use `bash deploy.sh --en --mirror` to select ECR Public,
+Berkeley Debian mirrors and the Huawei Cloud Python mirror. To force a rebuild, use
+`bash deploy.sh build --en --mirror`. Host Docker and package-source settings are not changed.
+Initial configuration needs an interactive terminal; do not pipe the script into Bash.
+
+The default address is `http://127.0.0.1:8080`. For a remote server use the SSH tunnel below;
+see the HTTPS section for phone/public access. The wizard checks container health and Codex sandbox
+execution; an actual conversation verifies model credentials, quota and connectivity.
+
+## Manual installation (optional)
+
+These are the Docker commands wrapped by the wizard, available when you want to control each step:
 
 ```sh
 git clone https://github.com/luxunhe-wq/codex-.git codex-web

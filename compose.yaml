@@ -6,7 +6,11 @@ services:
         CODEX_VERSION: ${CODEX_VERSION:-0.159.2}
         CODEX_WEB_UID: ${CODEX_WEB_UID:-1000}
         CODEX_WEB_GID: ${CODEX_WEB_GID:-1000}
-    image: codex-web-community:local
+        NODE_IMAGE: ${NODE_IMAGE:-node:22-bookworm-slim}
+        DEBIAN_MIRROR: ${DEBIAN_MIRROR:-http://deb.debian.org/debian}
+        DEBIAN_SECURITY_MIRROR: ${DEBIAN_SECURITY_MIRROR:-http://deb.debian.org/debian-security}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    image: ${CODEX_WEB_IMAGE:-codex-web-community:local}
     restart: unless-stopped
     ports:
       - "127.0.0.1:${CODEX_WEB_PUBLISH_PORT:-8080}:8080"

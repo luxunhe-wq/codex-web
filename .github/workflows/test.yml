@@ -13,6 +13,7 @@ jobs:
       - run: docker compose --env-file .env.docker.example config --quiet
       - run: docker build -t codex-web-community:test .
       - run: python tests/docker_smoke.py --image codex-web-community:test
+      - run: python tests/docker_deploy_smoke.py --image codex-web-community:test
   backend:
     runs-on: ubuntu-latest
     strategy:

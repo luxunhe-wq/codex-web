@@ -34,6 +34,8 @@ COPY server.py configuration.py documents.py LICENSE THIRD_PARTY_NOTICES.md READ
 COPY static/ /app/static/
 COPY docs/ /app/docs/
 COPY deploy/seccomp-codex.json deploy/LICENSE.moby-profiles /app/deploy/
+COPY scripts/docker_setup.py /app/scripts/
+LABEL io.codex-web.setup-version="1"
 RUN chmod -R a+rX /app
 
 ENV PATH="/opt/venv/bin:${PATH}" \

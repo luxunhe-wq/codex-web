@@ -85,21 +85,34 @@ for current installation and authentication options; CLI flags here were checked
 
 ## Docker quick start
 
-On a Linux server with Docker Engine and Docker Compose v2, run these commands in your downloaded checkout:
+On a Linux server with Docker Engine and Compose v2, run one command in the checkout:
 
 ```sh
-cp .env.docker.example .env.docker
-docker compose --env-file .env.docker build
-docker compose --env-file .env.docker run --rm -it codex-web codex login --device-auth
-# Verify Codex can answer a message, then exit.
-docker compose --env-file .env.docker run --rm -it codex-web codex
-docker compose --env-file .env.docker run --rm -it codex-web python /app/server.py --init-admin
-docker compose --env-file .env.docker up -d
+bash deploy.sh --en
 ```
 
-Open `http://127.0.0.1:8080`. The image includes Python, Node.js and Codex CLI; named volumes persist
-web data, Codex configuration and projects. See [Docker deployment](DOCKER.md) for custom providers,
-host project mounts, HTTPS, backup and upgrades. Docker users do not need the native steps below.
+The wizard prepares configuration, builds the image, guides you through entering your own API credentials
+(with the key hidden), signing in to Codex or importing existing configuration, then creates the web
+account and starts the service. Rerunning preserves configuration, accounts and data. Send a test message
+in the website to verify your model connection.
+
+```sh
+bash deploy.sh status --en
+bash deploy.sh stop --en
+bash deploy.sh --en
+bash deploy.sh configure --en
+bash deploy.sh logs --en
+```
+
+Use `bash deploy.sh --en --mirror` for alternate download sources if the first build has network problems.
+Open `http://127.0.0.1:8080`. See [Docker deployment](DOCKER.md) for remote access, host project mounts,
+HTTPS, backup and upgrades. Docker users do not need the native steps below.
+
+From a fresh terminal with Git, Docker and Compose installed, paste:
+
+```sh
+git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh --en
+```
 
 ## Native quick start
 

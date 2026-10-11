@@ -15,3 +15,5 @@
 !deploy/
 !deploy/seccomp-codex.json
 !deploy/LICENSE.moby-profiles
+!scripts/
+!scripts/docker_setup.py
