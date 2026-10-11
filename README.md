@@ -28,19 +28,52 @@ This independent community project is not an official OpenAI client.
 | GPU | Not required when using a remote model |
 
 Node.js is needed if you install Codex using npm; it is not a runtime dependency of this web application.
+Use a supported Node.js LTS release (22 or newer recommended) for that installation method.
 Project build/test tools must also be installed on the server as needed.
+The server needs outbound HTTPS access to GitHub, the package registries and your model provider;
+the browser needs access to your web server.
+
+## Download
+
+Run as your normal Linux user, in the directory where you keep your projects:
+
+```sh
+sudo apt update
+sudo apt install git python3 python3-venv
+git clone https://github.com/luxunhe-wq/codex-.git codex-web
+cd codex-web
+```
+
+Alternatively, [download the main-branch ZIP](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)
+and extract it. Git checkout is recommended for later updates.
+
+## Install and configure Codex
+
+If Codex is already working under your Linux account, skip installation. Otherwise install Node.js
+LTS and npm first, then install the CLI into a user-owned directory:
+
+```sh
+node --version
+npm --version
+npm install -g --prefix "$HOME/.local" @openai/codex
+export PATH="$HOME/.local/bin:$PATH"
+codex --version
+codex login
+codex login status
+```
+
+Keep `$HOME/.local/bin` on your shell PATH for future sessions. On a server without a browser,
+use `codex login --device-auth` if available for your account, and finish the prompted steps on
+another device. Alternatively, use your own supported provider configuration. Verify `codex`
+works in the terminal before installing the web service. The web administrator password is separate
+from Codex authentication. Refer to the [official CLI documentation](https://developers.openai.com/codex/cli/)
+for current installation and authentication options; CLI flags here were checked with 0.159.2.
 
 ## Quick start
 
-Clone this repository into a writable directory as your normal Linux user, then:
+After downloading the repository and configuring Codex, run these commands inside `codex-web`:
 
 ```sh
-# On Ubuntu/Debian if Python's venv support is missing:
-sudo apt install python3-venv
-
-# Install and authenticate/configure Codex separately first.
-codex --version
-
 # Prepare the Python environment and literal .env configuration.
 python3 scripts/install.py --no-service
 

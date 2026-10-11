@@ -11,14 +11,48 @@
 - 本项目验证过 Codex 0.159.2；其他版本应先验证兼容性，不保证所有版本均可用。
 - 使用远程模型无需 GPU。通过 npm 安装 Codex 才需要 Node.js，网页服务自身不依赖 Node.js。
 - 使用普通 Linux 用户，准备项目所需的 Git、编译器、Node.js 或其他构建工具。
+- 通过 npm 安装 Codex 时建议使用仍受支持的 Node.js LTS（22 或更新版本）。
+- 服务器需要能通过 HTTPS 访问 GitHub、Python/npm 软件源及自己的模型服务；浏览器需要能访问网页服务。
 
-## 安装
+## 下载项目
 
-克隆仓库后进入目录，以普通用户运行：
+使用普通 Linux 用户，在准备存放项目的目录运行：
 
 ```sh
-sudo apt install python3-venv
+sudo apt update
+sudo apt install git python3 python3-venv
+git clone https://github.com/luxunhe-wq/codex-.git codex-web
+cd codex-web
+```
+
+也可以[下载 ZIP 压缩包](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)后解压；建议使用 Git 下载，方便后续升级。
+
+## 安装并配置 Codex
+
+如果当前 Linux 用户已经能正常使用 Codex，可以跳过安装。否则先安装 Node.js LTS 和 npm，
+再将 Codex 安装到当前用户自己的目录：
+
+```sh
+node --version
+npm --version
+npm install -g --prefix "$HOME/.local" @openai/codex
+export PATH="$HOME/.local/bin:$PATH"
 codex --version
+codex login
+codex login status
+```
+
+后续终端也需要将 `$HOME/.local/bin` 加入 PATH。没有浏览器的服务器可尝试 `codex login --device-auth`，
+按照提示在其他设备完成登录；是否可用取决于账号。也可以使用自己已有的、受支持的模型服务配置。
+先在终端运行 `codex` 确认能正常对话，再安装网页服务。
+网页管理员密码和 Codex 登录是两套独立认证；仅安装本项目不能获得模型使用权限。
+最新安装与登录选项以[官方 CLI 文档](https://developers.openai.com/codex/cli/)为准，以上 CLI 参数已用 0.159.2 核对。
+
+## 安装并启动网页
+
+在下载的 `codex-web` 目录内，以普通用户运行：
+
+```sh
 python3 scripts/install.py --no-service
 .venv/bin/python server.py --init-admin
 .venv/bin/python server.py --check
