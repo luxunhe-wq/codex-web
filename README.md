@@ -1,42 +1,36 @@
 # Codex Web Community
 
-A self-hosted browser workspace for a locally installed Codex CLI on Linux.
-Use your own Codex account or model provider to work on your projects from a desktop or phone.
-This independent community project is not an official OpenAI client.
+简体中文 | [English](docs/README.en.md) · [HTTPS 部署](docs/DEPLOYMENT.md) · [安全说明](SECURITY.md)
 
-[中文部署与使用说明](docs/README.zh-CN.md) · [Deployment](docs/DEPLOYMENT.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
+这是一个独立社区项目，让你在 Linux 上通过浏览器操作自己的 Codex。
+不是 OpenAI 官方客户端，也不提供模型账号、API 密钥或免费额度。
 
-## Features
+## 使用前：先安装并配置好 Codex
 
-- Streaming conversations, tool output, command approvals, file changes and task cancellation.
-- Saved project folders, persistent conversation history and paginated long conversations.
-- Images via file selection, paste or drop, native vision input and upload progress.
-- Document attachments: text/code, CSV/JSON, PDF, DOCX, XLSX, PPTX and readable ZIP contents.
-- Scanned PDF pages supplied as images; previews, downloads and explicit extraction limits.
-- Remembered login, light/dark/system themes, compact mobile composer and themed loading screen.
-- Chinese/English interface with a language picker on the sign-in page and in settings; selection is remembered in each browser.
-- Python backend, SQLite storage and plain HTML/CSS/JavaScript; no frontend build step.
+**使用网页版之前，必须先在部署网页的 Linux 服务器上，以运行网页服务的同一个用户安装并配置好 Codex CLI（命令行应用）。**
 
-## Requirements
+1. 安装支持 `codex app-server --stdio` 的 Codex CLI，确认终端能执行 `codex --version`。
+2. 完成自己的 Codex 登录，或配置受支持的模型服务，并确保服务器能连接该模型服务。
+3. 在同一用户的终端运行 `codex`，发送一条消息，确认能正常收到回复，再安装和启动网页。
 
-| Component | Requirement |
-| --- | --- |
-| OS | Linux; Ubuntu 24.04 LTS recommended |
-| Python | 3.9+; 3.11/3.12 recommended |
-| Codex | Installed CLI with `app-server --stdio`; validated here with 0.159.2 |
-| Model access | Your own working Codex login/provider configuration and network access |
-| Hardware | Suggested starting point: 2 CPU cores, 4 GB RAM, 20 GB free disk; more for builds |
-| GPU | Not required when using a remote model |
+网页版调用服务器上的 Codex，沿用该用户的 Codex 配置。只在个人电脑上安装 Codex，不能代替服务器上的配置。
+网页管理员账号与 Codex 登录相互独立；创建网页账号不会自动登录 Codex，也不会提供模型额度。
+已有可正常使用的 Codex，在下载本项目后即可进入「安装并启动网页」步骤；Codex 安装和登录命令见下文。
 
-Node.js is needed if you install Codex using npm; it is not a runtime dependency of this web application.
-Use a supported Node.js LTS release (22 or newer recommended) for that installation method.
-Project build/test tools must also be installed on the server as needed.
-The server needs outbound HTTPS access to GitHub, the package registries and your model provider;
-the browser needs access to your web server.
+## 运行环境
 
-## Download
+- 推荐 Ubuntu 24.04 LTS、Python 3.11/3.12；代码支持 Python 3.9 及以上。
+- 建议从 2 核、4 GB 内存、20 GB 空闲磁盘起步。大型项目构建、依赖和附件需要更多空间。
+- 本机安装支持 `codex app-server --stdio` 的 Codex CLI，并完成自己的登录或模型配置。
+- 本项目验证过 Codex 0.159.2；其他版本应先验证兼容性，不保证所有版本均可用。
+- 使用远程模型无需 GPU。通过 npm 安装 Codex 才需要 Node.js，网页服务自身不依赖 Node.js。
+- 使用普通 Linux 用户，准备项目所需的 Git、编译器、Node.js 或其他构建工具。
+- 通过 npm 安装 Codex 时建议使用仍受支持的 Node.js LTS（22 或更新版本）。
+- 服务器需要能通过 HTTPS 访问 GitHub、Python/npm 软件源及自己的模型服务；浏览器需要能访问网页服务。
 
-Run as your normal Linux user, in the directory where you keep your projects:
+## 下载项目
+
+使用普通 Linux 用户，在准备存放项目的目录运行：
 
 ```sh
 sudo apt update
@@ -45,13 +39,12 @@ git clone https://github.com/luxunhe-wq/codex-.git codex-web
 cd codex-web
 ```
 
-Alternatively, [download the main-branch ZIP](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)
-and extract it. Git checkout is recommended for later updates.
+也可以[下载 ZIP 压缩包](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)后解压；建议使用 Git 下载，方便后续升级。
 
-## Install and configure Codex
+## 安装并配置 Codex
 
-If Codex is already working under your Linux account, skip installation. Otherwise install Node.js
-LTS and npm first, then install the CLI into a user-owned directory:
+如果当前 Linux 用户已经能正常使用 Codex，可以跳过安装。否则先安装 Node.js LTS 和 npm，
+再将 Codex 安装到当前用户自己的目录：
 
 ```sh
 node --version
@@ -63,92 +56,114 @@ codex login
 codex login status
 ```
 
-Keep `$HOME/.local/bin` on your shell PATH for future sessions. On a server without a browser,
-use `codex login --device-auth` if available for your account, and finish the prompted steps on
-another device. Alternatively, use your own supported provider configuration. Verify `codex`
-works in the terminal before installing the web service. The web administrator password is separate
-from Codex authentication. Refer to the [official CLI documentation](https://developers.openai.com/codex/cli/)
-for current installation and authentication options; CLI flags here were checked with 0.159.2.
+后续终端也需要将 `$HOME/.local/bin` 加入 PATH。没有浏览器的服务器可尝试 `codex login --device-auth`，
+按照提示在其他设备完成登录；是否可用取决于账号。也可以使用自己已有的、受支持的模型服务配置。
+先在终端运行 `codex` 确认能正常对话，再安装网页服务。
+网页管理员密码和 Codex 登录是两套独立认证；仅安装本项目不能获得模型使用权限。
+最新安装与登录选项以[官方 CLI 文档](https://developers.openai.com/codex/cli/)为准，以上 CLI 参数已用 0.159.2 核对。
 
-## Quick start
+## 安装并启动网页
 
-After downloading the repository and configuring Codex, run these commands inside `codex-web`:
+在下载的 `codex-web` 目录内，以普通用户运行：
 
 ```sh
-# Prepare the Python environment and literal .env configuration.
 python3 scripts/install.py --no-service
-
-# Create the administrator locally; passwords are prompted and never passed in arguments.
 .venv/bin/python server.py --init-admin
-
-# Check local runtime dependencies, then start.
 .venv/bin/python server.py --check
 .venv/bin/python server.py
 ```
 
-Open `http://127.0.0.1:8080`. For a remote server, use an SSH tunnel:
+安装脚本会建立 `.venv`、安装 Python 依赖并创建权限为 600 的 `.env`；不覆盖已有配置。
+本地打开 `http://127.0.0.1:8080`。远程服务器可以先通过 SSH 转发访问：
 
 ```sh
 ssh -N -L 8080:127.0.0.1:8080 your-user@your-server
 ```
 
-Install the user service with `python3 scripts/install.py`. For access from a phone or the public Internet,
-follow the [HTTPS deployment instructions](docs/DEPLOYMENT.md). The installer does not overwrite your
-existing `.env` or interrupt an already-running user service.
+在浏览器中访问本机 8080 端口。管理员密码通过终端提示输入，不出现在命令参数里。
+本机未配置代理时也可通过本地网页创建管理员；非本机来源以及配置了 HTTPS/域名的部署禁止网页注册，必须使用 `--init-admin`。
+手机或公网访问请参考 [HTTPS 部署](docs/DEPLOYMENT.md)。
 
-New databases default to `workspace-write` and `on-request` approval. Existing saved settings are retained.
-This is a single-administrator tool. Logged-in users can change execution permissions; it is not a shared
-hosting system with isolation between different users or tenants.
+## 常驻运行和升级
 
-## Interface language
+```sh
+python3 scripts/install.py
+systemctl --user status codex-web
+journalctl --user -u codex-web -n 50
+```
 
-Choose **简体中文** or **English** on the sign-in page, or open **Account and settings → Preferences → Language**
-after signing in. Switching applies immediately and keeps your draft, attachments and active conversation.
-Your browser remembers the selection, including on the refresh/loading screen. Conversation content,
-project names, file contents and model-provided tool descriptions keep their original language.
-The default is Simplified Chinese; language preferences are stored per browser, separately from account settings.
+用户服务在退出 SSH 后继续运行或开机启动，可能需要管理员执行 `sudo loginctl enable-linger your-user`。
+没有 systemd 用户服务的 Linux 环境可使用 `--no-service` 并自行配置进程管理器。
+运行目录含空格也可使用；安装器生成对应路径的服务文件。
 
-## Configuration
+升级前先停止接受新任务，等待所有现有任务结束，停止服务，备份整个 `data/` 和自己的 Codex 历史：
 
-Copy `.env.example` to `.env` for manual installation. The server reads it on startup;
-`--env-file /absolute/path/to/config.env` selects another file. Values are literal, without shell expansion.
-Existing environment variables override file values; CLI host/port options override both.
+```sh
+systemctl --user stop codex-web
+# 在服务停止后，将整个 data/ 复制到仓库外的备份目录。
+git pull --ff-only
+.venv/bin/python -m pip install -r requirements.txt
+systemctl --user start codex-web
+```
 
-| Variable | Default / purpose |
+数据库迁移自动执行；新默认值仅用于新建数据库，已有项目和执行权限保留。
+回滚需要恢复之前的代码版本、对应依赖和完整数据备份。
+
+## 使用
+
+- 中英文界面：登录页或「账号与设置 → 工作偏好 → 语言」中选择简体中文或 English，即时切换。
+- 当前浏览器记住语言，刷新等待页也使用同一语言；切换保留草稿、附件、待回答问题及运行中的任务。
+- 默认简体中文，语言选择独立于账号设置；对话内容、项目名称、文件正文和模型提供的工具说明保留原文。
+- 文本和连续对话，实时回复、命令输出、审批、文件变更及停止任务。
+- 持久保存项目文件夹和对话。长历史分页加载，刷新恢复上次对话。
+- 登录保留 30 天，使用时自动续期；主动退出或修改密码撤销旧登录。
+- 图片支持选择、粘贴、拖入、预览和重试；大图片尝试后台压缩，原图选项保留原始文件。
+- 每条消息最多 8 个附件，图片每张最大 10 MiB，普通文件每个最大 25 MiB。
+- 文件支持文本、代码、CSV、JSON、PDF、DOCX、XLSX、PPTX 及 ZIP 内的可读文本；原文件可下载。
+- 文字 PDF 提取前 50 页；每个文件最多 12 万字符，单条消息提取文本总计最多 18 万字符。
+- 扫描 PDF 每个文件最多渲染 4 页，每条消息最多提供 12 页图像。超限会注明，完整原文件保留。
+- ZIP 只解析目录和文本，不解压到项目目录；上传文件不会作为程序执行。
+- 思考时间仅按实际收到的可计量事件显示；上游不提供真实用时的条目会明确注明。
+- 浅色、深色和系统主题；等待页与对话背景一致；手机输入区采用紧凑布局。
+
+新安装默认项目内读写（`workspace-write`）、按需审批（`on-request`）。
+可以在设置中开启完全访问，但登录用户能更改权限；这不是不同用户之间的隔离机制。
+本项目仅有一个管理员账号，适合个人独立部署。不要让不可信的人使用同一实例。
+
+## 配置
+
+手动安装时将 [.env.example](.env.example) 复制为 `.env`；安装脚本会自动创建配置文件。
+网页服务在启动时读取配置，可通过 `--env-file /absolute/path/to/config.env` 指定其他配置文件。
+
+| 配置项 | 默认值或用途 |
 | --- | --- |
-| `CODEX_WEB_HOST` | `127.0.0.1` |
+| `CODEX_WEB_HOST` | `127.0.0.1`，默认仅监听本机 |
 | `CODEX_WEB_PORT` | `8080` |
-| `CODEX_WEB_DATA` | `data/` beside `server.py`; account database and attachments |
-| `CODEX_WEB_CWD` | Repository directory; initial project for a new database |
-| `CODEX_WEB_CODEX_BIN` | `codex` on PATH, or absolute executable path |
-| `CODEX_HOME` | Codex's own default; optional alternate configuration/history directory |
-| `CODEX_WEB_ALLOWED_HOSTS` | Comma-separated reverse proxy hostnames, without ports |
-| `CODEX_WEB_SECURE_COOKIE` | `0`; set `1` with HTTPS reverse proxy |
+| `CODEX_WEB_DATA` | 项目内的 `data/`，保存账号数据库、对话和附件 |
+| `CODEX_WEB_CWD` | 本仓库目录，新数据库的默认项目目录 |
+| `CODEX_WEB_CODEX_BIN` | PATH 中的 `codex`，也可填写可执行文件的绝对路径 |
+| `CODEX_HOME` | 沿用 Codex 默认配置目录，可选指定其他配置与历史目录 |
+| `CODEX_WEB_ALLOWED_HOSTS` | 反向代理域名，以逗号分隔，不包含端口 |
+| `CODEX_WEB_SECURE_COOKIE` | 默认 `0`；通过 HTTPS 反向代理访问时设为 `1` |
 
-Own credentials, account databases and uploads stay on your server and are excluded from Git.
-The repository does not include model subscriptions or quota. Connection uses a local
-`codex app-server --stdio` process and JSON-RPC; browser updates use SSE.
-See the [official CLI documentation](https://developers.openai.com/codex/cli/) and
-[App Server documentation](https://developers.openai.com/codex/app-server/) for upstream information.
-The validated CLI version above is an observed compatibility baseline, not a minimum-version guarantee.
+`.env` 不自动执行 shell，不展开 `$HOME` 或 `~`，路径请填写绝对路径。
+环境变量优先于配置文件，命令行 host/port 优先于两者。
+Codex 凭据保存在你自己的 Codex 配置目录，网页不会显示密钥。
 
-## Tests
+后端使用 Python 和 SQLite，前端使用原生 HTML/CSS/JavaScript，无需前端构建。
+网页服务通过本机 `codex app-server --stdio` 与 Codex 通信，浏览器通过 SSE 接收实时更新。
+
+## 验证与发布
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -v
 .venv/bin/python -m pip install -r requirements-dev.txt
 .venv/bin/python -m playwright install chromium
 .venv/bin/python tests/browser_workspace.py
-.venv/bin/python tests/browser_login_restore.py
-.venv/bin/python tests/browser_images.py
-.venv/bin/python tests/browser_files.py
+python3 scripts/check_release.py --staged
 ```
 
-Simulated tests use temporary accounts/databases and do not call a model. Set `CHROMIUM_PATH` only
-when using your own Chromium. `tests/smoke_*.py` are opt-in real-model checks and may incur usage.
-GitHub Actions checks backend tests on Python 3.9/3.11/3.12 and selected browser regressions on Linux.
+接口及模拟浏览器测试使用临时账号和数据库，不调用模型。`smoke_*.py` 使用真实模型，需自行明确运行。
+Git 不应包含数据、凭据、聊天截图或附件；发布检查扫描全部 Git 暂存文件，只打印问题路径，不打印密钥。
 
-## License
-
-[AGPL-3.0-only](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md), including PyMuPDF/MuPDF.
-Modified network-served versions must comply with the license's corresponding-source obligations.
+本项目采用 [AGPL-3.0-only](LICENSE)，依赖声明见 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md)。
