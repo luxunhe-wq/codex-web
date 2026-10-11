@@ -6,6 +6,26 @@ This independent community project is not an official OpenAI client.
 
 [简体中文](../README.md) | English · [Docker](DOCKER.md) · [Deployment](DEPLOYMENT.md) · [Security](../SECURITY.md) · [Contributing](../CONTRIBUTING.md)
 
+## Screenshots
+
+These screenshots use fictional accounts, projects and conversations. They contain no real user content or model provider configuration.
+
+**Desktop · light** — Saved projects, reasoning duration, command output and conversation.
+
+![Light desktop UI showing a fictional product page task](images/desktop-light.png)
+
+**Desktop · dark** — Review file changes alongside the conversation.
+
+![Dark desktop UI showing a demo project's code diff](images/desktop-dark.png)
+
+**Mobile** — A compact composer with model and reasoning controls.
+
+<img src="images/mobile.png" alt="Chinese mobile conversation with fictional demo content" width="390">
+
+**English interface** — Switch languages in settings.
+
+![English desktop UI showing a fictional product page task](images/desktop-en.png)
+
 ## Configure Codex before using the website
 
 **Configure Codex CLI and verify it works before using the website.** For native deployment, install it on the same Linux server,
