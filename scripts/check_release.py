@@ -6,7 +6,7 @@ import re
 import subprocess
 import sys
 
-BLOCKED_DIRS = {'data', 'artifacts', '.codex', '.ssh', '.venv', 'venv', '__pycache__', 'backups'}
+BLOCKED_DIRS = {'data', 'artifacts', '.codex', '.ssh', '.venv', 'venv', '__pycache__', 'backups', 'workspace'}
 SECRET_PATTERNS = [
     re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----'),
     re.compile(rb'\bsk-(?:proj-)?[A-Za-z0-9_-]{24,}\b'),
@@ -21,7 +21,7 @@ def check_entry(name, data, mode='100644'):
     reasons = []
     if any(part in BLOCKED_DIRS for part in path.parts):
         reasons.append('private/runtime directory')
-    if ((path.name.startswith('.env') and path.name != '.env.example')
+    if ((path.name.startswith('.env') and path.name not in {'.env.example', '.env.docker.example'})
             or path.name in {'auth.json', 'credentials.json'}
             or re.search(r'\.(sqlite3?|db)(?:-.*)?$|\.(pem|key|p12|pfx|log|pyc)$', path.name)):
         reasons.append('private/runtime file')

@@ -4,12 +4,13 @@ A self-hosted browser workspace for a locally installed Codex CLI on Linux.
 Use your own Codex account or model provider to work on your projects from a desktop or phone.
 This independent community project is not an official OpenAI client.
 
-[简体中文](../README.md) | English · [Deployment](DEPLOYMENT.md) · [Security](../SECURITY.md) · [Contributing](../CONTRIBUTING.md)
+[简体中文](../README.md) | English · [Docker](DOCKER.md) · [Deployment](DEPLOYMENT.md) · [Security](../SECURITY.md) · [Contributing](../CONTRIBUTING.md)
 
 ## Configure Codex before using the website
 
-**Before deploying the web interface, install and configure Codex CLI on the same Linux server,
-under the same user account that will run the web service.** Complete your Codex sign-in or supported
+**Configure Codex CLI and verify it works before using the website.** For native deployment, install it on the same Linux server,
+under the same user account that will run the web service. The Docker image includes the CLI; authenticate/configure it inside the container.
+Complete your Codex sign-in or supported
 model provider configuration, and verify that you can run `codex` in the terminal and receive a reply.
 Installing Codex only on your computer does not configure a separate web server.
 The web interface uses that server's Codex configuration; creating a web administrator account does
@@ -60,6 +61,8 @@ and extract it. Git checkout is recommended for later updates.
 
 ## Install and configure Codex
 
+These are native installation steps. Docker users can skip host Python/Codex installation and follow the Docker section below.
+
 If Codex is already working under your Linux account, skip installation. Otherwise install Node.js
 LTS and npm first, then install the CLI into a user-owned directory:
 
@@ -80,7 +83,25 @@ works in the terminal before installing the web service. The web administrator p
 from Codex authentication. Refer to the [official CLI documentation](https://developers.openai.com/codex/cli/)
 for current installation and authentication options; CLI flags here were checked with 0.159.2.
 
-## Quick start
+## Docker quick start
+
+On a Linux server with Docker Engine and Docker Compose v2, run these commands in your downloaded checkout:
+
+```sh
+cp .env.docker.example .env.docker
+docker compose --env-file .env.docker build
+docker compose --env-file .env.docker run --rm -it codex-web codex login --device-auth
+# Verify Codex can answer a message, then exit.
+docker compose --env-file .env.docker run --rm -it codex-web codex
+docker compose --env-file .env.docker run --rm -it codex-web python /app/server.py --init-admin
+docker compose --env-file .env.docker up -d
+```
+
+Open `http://127.0.0.1:8080`. The image includes Python, Node.js and Codex CLI; named volumes persist
+web data, Codex configuration and projects. See [Docker deployment](DOCKER.md) for custom providers,
+host project mounts, HTTPS, backup and upgrades. Docker users do not need the native steps below.
+
+## Native quick start
 
 After downloading the repository and configuring Codex, run these commands inside `codex-web`:
 

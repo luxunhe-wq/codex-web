@@ -1,0 +1,35 @@
+services:
+  codex-web:
+    build:
+      context: .
+      args:
+        CODEX_VERSION: ${CODEX_VERSION:-0.159.2}
+        CODEX_WEB_UID: ${CODEX_WEB_UID:-1000}
+        CODEX_WEB_GID: ${CODEX_WEB_GID:-1000}
+    image: codex-web-community:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${CODEX_WEB_PUBLISH_PORT:-8080}:8080"
+    environment:
+      CODEX_WEB_ALLOWED_HOSTS: ${CODEX_WEB_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      CODEX_WEB_SECURE_COOKIE: ${CODEX_WEB_SECURE_COOKIE:-0}
+    volumes:
+      - codex-config:/home/node/.codex
+      - web-data:/data
+      - projects:/workspace
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./deploy/seccomp-codex.json
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  codex-config:
+  web-data:
+  projects:

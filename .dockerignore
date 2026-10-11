@@ -1,0 +1,17 @@
+# Allow only runtime source, dependencies and public documentation into the build context.
+**
+!Dockerfile
+!requirements.txt
+!server.py
+!configuration.py
+!documents.py
+!static/
+!static/**
+!LICENSE
+!THIRD_PARTY_NOTICES.md
+!README.md
+!docs/
+!docs/**
+!deploy/
+!deploy/seccomp-codex.json
+!deploy/LICENSE.moby-profiles

@@ -4,6 +4,9 @@ Use a normal Linux account with access only to the projects it should operate on
 Install and authenticate Codex under that same account; the web password is separate.
 The Python server starts Codex on demand and inherits the configured environment.
 
+For Docker Compose, see [Docker deployment](DOCKER.md) / [中文 Docker 说明](DOCKER.zh-CN.md).
+The image includes Codex CLI; configure authentication inside its persistent Codex volume first.
+
 ## Local and SSH access
 
 The default listener is `127.0.0.1:8080`. Use an SSH tunnel for a remote machine:
@@ -75,4 +78,4 @@ This database backup does not include attachments; retain full-directory backups
 - Upload/PDF limits: split oversized documents; extraction is bounded in a subprocess.
 
 This version is for a single trusted administrator. It does not isolate multiple tenants,
-package a model, include credentials or provide a Docker deployment.
+package a model or include credentials. Native and Docker Compose deployments are supported.

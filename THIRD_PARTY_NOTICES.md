@@ -8,7 +8,11 @@ separately and retain their own licenses:
 | Pillow | HPND (see its bundled notices) | Uploaded image validation |
 | PyMuPDF / MuPDF | AGPL-3.0 or Artifex commercial license | PDF extraction and rendering |
 | Playwright | Apache-2.0 | Optional development/browser tests |
-| Codex CLI | Its upstream license and applicable service terms | Separately installed App Server |
+| Codex CLI | Its upstream license and applicable service terms | App Server installed on the host or in the Docker image |
+| Moby profiles | Apache-2.0 | Docker seccomp profile derived from the upstream default |
+
+`deploy/seccomp-codex.json` is derived from the [Moby default profile](https://github.com/moby/profiles/blob/main/seccomp/default.json),
+with an added allow rule for bubblewrap namespace/mount operations. Its license is in `deploy/LICENSE.moby-profiles`.
 
 This repository does not supply a Codex subscription, API key or model quota.
 Users configure their own Codex installation and authentication.

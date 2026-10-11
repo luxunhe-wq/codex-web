@@ -55,9 +55,12 @@ class DeploymentTests(unittest.TestCase):
     def test_release_scanner_rejects_data_and_credentials_without_echoing_them(self):
         self.assertTrue(check_entry('data/web.sqlite3', b'private'))
         self.assertTrue(check_entry('.env', b'private'))
+        self.assertTrue(check_entry('.env.docker', b'private'))
+        self.assertTrue(check_entry('workspace/user-project/file.txt', b'private'))
         self.assertTrue(check_entry('config.txt', b'sk-' + b'x'*30))
         self.assertTrue(check_entry('link', b'/etc/passwd', '120000'))
         self.assertEqual(check_entry('.env.example', b'CODEX_WEB_PORT=8080'), [])
+        self.assertEqual(check_entry('.env.docker.example', b'CODEX_WEB_PUBLISH_PORT=8080'), [])
         self.assertEqual(check_entry('tests/fixtures/sample.png', b'fixture'), [])
 
     def test_cli_admin_initialization_and_refusal_do_not_interrupt_tasks(self):

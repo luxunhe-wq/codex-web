@@ -1,13 +1,14 @@
 # Codex Web Community
 
-简体中文 | [English](docs/README.en.md) · [HTTPS 部署](docs/DEPLOYMENT.md) · [安全说明](SECURITY.md)
+简体中文 | [English](docs/README.en.md) · [Docker 部署](docs/DOCKER.zh-CN.md) · [HTTPS 部署](docs/DEPLOYMENT.md) · [安全说明](SECURITY.md)
 
 这是一个独立社区项目，让你在 Linux 上通过浏览器操作自己的 Codex。
 不是 OpenAI 官方客户端，也不提供模型账号、API 密钥或免费额度。
 
 ## 使用前：先安装并配置好 Codex
 
-**使用网页版之前，必须先在部署网页的 Linux 服务器上，以运行网页服务的同一个用户安装并配置好 Codex CLI（命令行应用）。**
+**使用网页版之前，必须先配置好 Codex CLI（命令行应用），确认它能正常对话。**
+原生部署需在同一 Linux 服务器、同一运行用户下安装并配置 Codex；Docker 镜像已包含 Codex CLI，需在容器内完成登录或模型配置。
 
 1. 安装支持 `codex app-server --stdio` 的 Codex CLI，确认终端能执行 `codex --version`。
 2. 完成自己的 Codex 登录，或配置受支持的模型服务，并确保服务器能连接该模型服务。
@@ -15,13 +16,13 @@
 
 网页版调用服务器上的 Codex，沿用该用户的 Codex 配置。只在个人电脑上安装 Codex，不能代替服务器上的配置。
 网页管理员账号与 Codex 登录相互独立；创建网页账号不会自动登录 Codex，也不会提供模型额度。
-已有可正常使用的 Codex，在下载本项目后即可进入「安装并启动网页」步骤；Codex 安装和登录命令见下文。
+已有可正常使用的 Codex，在下载本项目后即可选择 Docker 或原生部署；Codex 安装和登录命令见下文。
 
 ## 运行环境
 
 - 推荐 Ubuntu 24.04 LTS、Python 3.11/3.12；代码支持 Python 3.9 及以上。
 - 建议从 2 核、4 GB 内存、20 GB 空闲磁盘起步。大型项目构建、依赖和附件需要更多空间。
-- 本机安装支持 `codex app-server --stdio` 的 Codex CLI，并完成自己的登录或模型配置。
+- 配置支持 `codex app-server --stdio` 的 Codex CLI，并完成自己的登录或模型配置；Docker 模式在容器内配置。
 - 本项目验证过 Codex 0.159.2；其他版本应先验证兼容性，不保证所有版本均可用。
 - 使用远程模型无需 GPU。通过 npm 安装 Codex 才需要 Node.js，网页服务自身不依赖 Node.js。
 - 使用普通 Linux 用户，准备项目所需的 Git、编译器、Node.js 或其他构建工具。
@@ -43,6 +44,8 @@ cd codex-web
 
 ## 安装并配置 Codex
 
+以下是原生安装步骤。使用 Docker 可跳过宿主机上的 Codex/Python 安装，直接按下一节在容器内配置。
+
 如果当前 Linux 用户已经能正常使用 Codex，可以跳过安装。否则先安装 Node.js LTS 和 npm，
 再将 Codex 安装到当前用户自己的目录：
 
@@ -62,7 +65,27 @@ codex login status
 网页管理员密码和 Codex 登录是两套独立认证；仅安装本项目不能获得模型使用权限。
 最新安装与登录选项以[官方 CLI 文档](https://developers.openai.com/codex/cli/)为准，以上 CLI 参数已用 0.159.2 核对。
 
-## 安装并启动网页
+## Docker 部署
+
+已安装 Docker Engine 和 Docker Compose v2 的 Linux 服务器，可直接构建镜像。镜像包含 Python、Node.js 和 Codex CLI，
+对话附件、Codex 登录配置和项目文件使用持久化数据卷保存。
+
+在下载的项目目录内运行：
+
+```sh
+cp .env.docker.example .env.docker
+docker compose --env-file .env.docker build
+docker compose --env-file .env.docker run --rm -it codex-web codex login --device-auth
+# 先用容器中的 Codex 验证能正常对话，再退出。
+docker compose --env-file .env.docker run --rm -it codex-web codex
+docker compose --env-file .env.docker run --rm -it codex-web python /app/server.py --init-admin
+docker compose --env-file .env.docker up -d
+```
+
+浏览器访问 `http://127.0.0.1:8080`。Docker 模式不必运行下方的原生安装命令。
+自定义模型服务、项目目录挂载、HTTPS、备份和升级见[完整 Docker 说明](docs/DOCKER.zh-CN.md)。
+
+## 原生安装并启动网页
 
 在下载的 `codex-web` 目录内，以普通用户运行：
 

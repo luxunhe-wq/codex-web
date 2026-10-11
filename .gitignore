@@ -9,6 +9,10 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.docker.example
+compose.override.yaml
+workspace/
+backups/
 .codex/
 .ssh/
 auth.json
