@@ -14,6 +14,7 @@ This independent community project is not an official OpenAI client.
 - Document attachments: text/code, CSV/JSON, PDF, DOCX, XLSX, PPTX and readable ZIP contents.
 - Scanned PDF pages supplied as images; previews, downloads and explicit extraction limits.
 - Remembered login, light/dark/system themes, compact mobile composer and themed loading screen.
+- Chinese/English interface with a language picker on the sign-in page and in settings; selection is remembered in each browser.
 - Python backend, SQLite storage and plain HTML/CSS/JavaScript; no frontend build step.
 
 ## Requirements
@@ -98,6 +99,14 @@ existing `.env` or interrupt an already-running user service.
 New databases default to `workspace-write` and `on-request` approval. Existing saved settings are retained.
 This is a single-administrator tool. Logged-in users can change execution permissions; it is not a shared
 hosting system with isolation between different users or tenants.
+
+## Interface language
+
+Choose **简体中文** or **English** on the sign-in page, or open **Account and settings → Preferences → Language**
+after signing in. Switching applies immediately and keeps your draft, attachments and active conversation.
+Your browser remembers the selection, including on the refresh/loading screen. Conversation content,
+project names, file contents and model-provided tool descriptions keep their original language.
+The default is Simplified Chinese; language preferences are stored per browser, separately from account settings.
 
 ## Configuration
 

@@ -149,3 +149,11 @@ svg.icon.codex-logo{fill:currentColor;stroke:none}
 @media(prefers-color-scheme:dark){:root[data-theme=system]{--bg:#1c1c1c;--sidebar:#171717;--panel:#252525;--ink:#ededed;--muted:#999;--border:#333;--hover:#2b2b2b;--accent:#eee;--accent-ink:#181818;--green:#bbb;--soft:#292929;--shadow:0 16px 70px #0006;color-scheme:dark}}
 
 .startup-screen .startup-logo{width:56px;height:56px;flex-shrink:0;margin-bottom:14px}.startup-progress{display:flex;align-items:center;justify-content:center;gap:9px;color:var(--muted);font-size:13px}.startup-progress .spinner{flex-shrink:0}.startup-screen .primary{margin-top:8px}
+
+/* The saved browser language is set in the head before the loading screen paints. */
+html[lang="en"] [data-startup-lang="zh-CN"], html:not([lang="en"]) [data-startup-lang="en"]{display:none}
+.auth-language{display:flex;justify-content:flex-end;margin-bottom:18px}
+.auth-language label{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;color:var(--muted)}
+.auth-language select{width:auto;padding:6px 9px;font-size:12px;background:var(--panel);color:var(--ink);border:1px solid var(--border);border-radius:7px}
+html[lang="en"] .composer-effort select{max-width:100px}
+@media(max-width:560px){html[lang="en"] .composer-control-label{font-size:9px}html[lang="en"] .composer-effort select{max-width:83px}}
