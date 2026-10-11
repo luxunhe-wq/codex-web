@@ -1,0 +1,19 @@
+[Unit]
+# Example user service; scripts/install.py generates paths for your checkout.
+Description=Codex Web Community browser workspace
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/codex-web
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+UMask=0077
+ExecStart=%h/codex-web/.venv/bin/python %h/codex-web/server.py --env-file %h/codex-web/.env
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=15
+KillMode=control-group
+
+[Install]
+WantedBy=default.target
