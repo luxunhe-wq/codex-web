@@ -134,6 +134,28 @@ From a fresh terminal with Git, Docker and Compose installed, paste:
 git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh --en
 ```
 
+## Which username and password do I use?
+
+**There is no default administrator username or password. Sign in using the web credentials you set during deployment.**
+
+- Guided Docker deployment: on the first run of `bash deploy.sh --en`, the terminal asks you to create the web account after configuring Codex.
+- Native deployment: create the web account when running `.venv/bin/python server.py --init-admin`.
+
+| Terminal prompt | What to enter |
+| --- | --- |
+| `Administrator username:` | Your chosen username, 3–40 characters: letters, numbers, Chinese characters or `. @ _ -` |
+| `Password (at least 10 characters):` | Your chosen password, 10–256 characters; no characters appear while typing |
+| `Confirm password:` | Enter the same password again |
+
+`Administrator created. Start the service and sign in.` confirms the account was created.
+After deployment, open the address printed by the script (default: `http://127.0.0.1:8080`)
+and sign in with those credentials. Keep them in a safe place. The `demo` account in screenshots
+is fictional and cannot be used to sign in to your deployment.
+
+The web account is separate from Codex sign-in and model API keys. Rerunning the deployment script,
+restarting or performing a normal upgrade preserves the existing account. Once signed in,
+change credentials under **Account and settings → Account and security**.
+
 ## Native quick start
 
 After downloading the repository and configuring Codex, run these commands inside `codex-web`:

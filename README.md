@@ -117,6 +117,28 @@ bash deploy.sh logs         # 查看日志
 git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh
 ```
 
+## 部署后用什么账号和密码登录？
+
+**没有默认管理员账号或密码。登录时使用部署过程中由你自己设置的网页账号和密码。**
+
+- Docker 引导部署：首次运行 `bash deploy.sh`，完成 Codex 配置后，终端会提示创建网页账号。
+- 原生部署：运行 `.venv/bin/python server.py --init-admin` 时，按终端提示创建网页账号。
+
+终端提示对应如下：
+
+| 终端提示 | 应填写的内容 |
+| --- | --- |
+| `Administrator username:` | 自己设置的登录账号，3–40 位，可使用字母、数字、中文或 `. @ _ -` |
+| `Password (at least 10 characters):` | 自己设置的登录密码，10–256 位；输入时不显示字符是正常现象 |
+| `Confirm password:` | 再输入一次相同密码 |
+
+看到 `Administrator created. Start the service and sign in.` 即表示账号创建成功。
+部署完成后打开脚本显示的地址（默认 `http://127.0.0.1:8080`），用刚设置的账号和密码登录。
+请自行妥善保存登录信息；截图中的 `demo` 只是虚构演示账号，不能用于登录你的部署。
+
+网页账号与 Codex 登录、模型 API 密钥相互独立。再次运行部署脚本、重启或正常升级会保留原账号，
+无需重新创建。登录后可在「账号与设置 → 账号与安全」中修改账号和密码。
+
 ## 原生安装并启动网页
 
 在下载的 `codex-web` 目录内，以普通用户运行：

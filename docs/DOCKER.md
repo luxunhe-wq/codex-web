@@ -55,6 +55,27 @@ The default address is `http://127.0.0.1:8080`. For a remote server use the SSH 
 see the HTTPS section for phone/public access. The wizard checks container health and Codex sandbox
 execution; an actual conversation verifies model credentials, quota and connectivity.
 
+## Signing in: administrator username and password
+
+**There are no default credentials.** On the first run of `bash deploy.sh --en`, after configuring Codex,
+the terminal prompts you to create the web account:
+
+```text
+Administrator username:
+Password (at least 10 characters):
+Confirm password:
+```
+
+Enter your chosen username (3–40 characters), password (10–256 characters), then the same password again.
+Password input is hidden. `Administrator created. Start the service and sign in.` confirms success.
+After deployment, open the address printed by the script and sign in with those credentials.
+Keep them in a safe place. The manual `--init-admin` command uses the same prompts.
+
+This account is separate from Codex sign-in and model API keys. The `demo` account in screenshots
+is fictional and cannot be used to sign in. Rerunning deployment, restarting or performing a normal
+upgrade preserves the account, stored alongside conversations in the `web-data` volume.
+Change credentials after signing in under **Account and settings → Account and security**.
+
 ## Manual installation (optional)
 
 These are the Docker commands wrapped by the wizard, available when you want to control each step:
