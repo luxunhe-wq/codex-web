@@ -227,6 +227,7 @@ The validated CLI version above is an observed compatibility baseline, not a min
 .venv/bin/python tests/browser_workspace.py
 .venv/bin/python tests/browser_login_restore.py
 .venv/bin/python tests/browser_images.py
+.venv/bin/python tests/browser_upload_recovery.py
 .venv/bin/python tests/browser_files.py
 ```
 

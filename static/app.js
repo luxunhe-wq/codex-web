@@ -225,6 +225,9 @@ const EN_MESSAGES = {
   "未提供思考摘要": "Reasoning summary unavailable",
   "查看操作内容，决定是否继续。": "Review the operation and decide whether to continue.",
   "校验图片…": "Validating image…",
+  "等待确认 {seconds} 秒": "Awaiting confirmation {seconds}s",
+  "图片仍在传输或等待服务器确认，尚未完成上传。": "The image is still in transit or awaiting server confirmation. Upload is not complete yet.",
+  "文件仍在传输或等待服务器处理，尚未完成上传。": "The file is still in transit or awaiting server processing. Upload is not complete yet.",
   "模型列表暂不可用：": "Model list unavailable: ",
   "模型已更新，将在下次发送时使用": "Model updated. It will be used for your next message.",
   "模型未提供可单独计量的思考耗时。任务总用时和等待回复时间会继续显示。": "The model did not provide a separate reasoning duration. Total task time and waiting time are still shown.",
@@ -1166,6 +1169,7 @@ function renderAttachments() {
       preview = document.createElement('img'); preview.src = image.previewURL; preview.alt = image.name;
       preview.onclick = () => { $('image-viewer-image').src = image.previewURL; $('image-dialog-title').textContent = image.name; $('image-dialog').showModal(); };
     }
+    if (image.phase === 'confirming') tile.title += '\n' + t(image.kind === 'file' ? '文件仍在传输或等待服务器处理，尚未完成上传。' : '图片仍在传输或等待服务器确认，尚未完成上传。');
     tile.append(preview);
     const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'attachment-remove'; remove.textContent = '×';
     remove.onclick = () => removeAttachment(image.clientId); remove.setAttribute('aria-label', t(image.kind === 'file' ? '移除文件 {name}' : '移除图片 {name}', {name: image.name})); tile.append(remove);
@@ -1185,6 +1189,7 @@ function attachmentCaption(image) {
   if (image.status === 'ready') return image.name;
   if (image.phase === 'queued') return t('等待上传…');
   if (image.phase === 'preparing') return t('优化图片…');
+  if (image.phase === 'confirming') return t('等待确认 {seconds} 秒', {seconds: Math.floor(Math.max(0, Date.now() - image.confirmingAt) / 1000)});
   if (image.phase === 'processing') return image.kind === 'file' ? t('解析文件…') : t('校验图片…');
   return t('上传 ') + (image.progress || 0) + '%';
 }
@@ -1208,17 +1213,32 @@ function prepareImageUpload(image, signal) {
 function transferAttachment(image, blob, signal) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    let settled = false, deadline, ticker;
     const aborted = () => xhr.abort();
-    const finish = (error, value) => { signal.removeEventListener('abort', aborted); error ? reject(error) : resolve(value); };
+    const finish = (error, value) => {
+      if (settled) return;
+      settled = true; clearTimeout(deadline); clearInterval(ticker);
+      signal.removeEventListener('abort', aborted);
+      error ? reject(error) : resolve(value);
+    };
     xhr.open('POST', '/api/attachments?name=' + encodeURIComponent(image.name) + (image.kind === 'file' ? '&kind=file' : ''));
     xhr.timeout = 120000;
     xhr.setRequestHeader('Content-Type', blob.type || 'application/octet-stream');
     xhr.setRequestHeader('X-CSRF-Token', state.csrf);
-    xhr.upload.onprogress = event => { if (event.lengthComputable) { image.progress = Math.round(event.loaded / event.total * 100); if (event.loaded === event.total) image.phase = 'processing'; updateUploadCaption(image); } };
+    xhr.upload.onprogress = event => {
+      if (settled || !event.lengthComputable) return;
+      image.progress = Math.min(99, Math.round(event.loaded / event.total * 100));
+      // Browser progress measures bytes handed to the network, not receipt by the server.
+      if (event.loaded === event.total && image.phase !== 'confirming') {
+        image.phase = 'confirming'; image.confirmingAt = Date.now(); renderAttachments();
+      }
+      updateUploadCaption(image);
+    };
     xhr.onload = () => {
       let result;
-      try { result = JSON.parse(xhr.responseText); } catch { finish(new Error(t('服务器返回了无效响应'))); return; }
+      try { result = JSON.parse(xhr.responseText); if (!result || typeof result !== 'object') throw new Error(); } catch { finish(new Error(t('服务器返回了无效响应'))); return; }
       if (xhr.status < 200 || xhr.status >= 300) { if (xhr.status === 401) showAuth(false); finish(new Error(translateError(result.error || '附件上传失败'))); }
+      else if (!result.attachment || !/^[a-f0-9]{32}$/.test(result.attachment.id || '') || !safeImageURL(result.attachment.url)) finish(new Error(t('服务器返回了无效响应')));
       else finish(null, result);
     };
     xhr.onerror = () => finish(new Error(t('网络连接中断，请重试上传')));
@@ -1226,7 +1246,10 @@ function transferAttachment(image, blob, signal) {
     xhr.onabort = () => finish(new DOMException(t('上传已取消'), 'AbortError'));
     signal.addEventListener('abort', aborted, {once:true});
     if (signal.aborted) { finish(new DOMException(t('上传已取消'), 'AbortError')); return; }
-    xhr.send(blob);
+    // Bound the wait even if a browser fails to dispatch its native timeout event.
+    deadline = setTimeout(() => { finish(new Error(t('上传超时，请检查网络后重试'))); xhr.abort(); }, 120000);
+    ticker = setInterval(() => { if (image.phase === 'confirming') updateUploadCaption(image); }, 1000);
+    try { xhr.send(blob); } catch (error) { finish(error); }
   });
 }
 function uploadImage(image) {

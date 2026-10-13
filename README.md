@@ -237,6 +237,7 @@ Codex 凭据保存在你自己的 Codex 配置目录，网页不会显示密钥�
 .venv/bin/python -m pip install -r requirements-dev.txt
 .venv/bin/python -m playwright install chromium
 .venv/bin/python tests/browser_workspace.py
+.venv/bin/python tests/browser_upload_recovery.py
 python3 scripts/check_release.py --staged
 ```
 
