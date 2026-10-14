@@ -8,7 +8,7 @@ ARG DEBIAN_MIRROR=http://deb.debian.org/debian
 ARG DEBIAN_SECURITY_MIRROR=http://deb.debian.org/debian-security
 
 LABEL org.opencontainers.image.title="Codex Web Community" \
-      org.opencontainers.image.source="https://github.com/luxunhe-wq/codex-" \
+      org.opencontainers.image.source="https://github.com/luxunhe-wq/codex-web" \
       org.opencontainers.image.licenses="AGPL-3.0-only"
 
 RUN sed -i "s|http://deb.debian.org/debian-security|${DEBIAN_SECURITY_MIRROR}|g; s|http://deb.debian.org/debian$|${DEBIAN_MIRROR}|g" /etc/apt/sources.list.d/debian.sources \

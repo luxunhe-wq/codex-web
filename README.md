@@ -56,11 +56,11 @@
 ```sh
 sudo apt update
 sudo apt install git python3 python3-venv
-git clone https://github.com/luxunhe-wq/codex-.git codex-web
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web
 cd codex-web
 ```
 
-也可以[下载 ZIP 压缩包](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)后解压；建议使用 Git 下载，方便后续升级。
+也可以[下载 ZIP 压缩包](https://github.com/luxunhe-wq/codex-web/archive/refs/heads/main.zip)后解压；建议使用 Git 下载，方便后续升级。
 
 ## 安装并配置 Codex
 
@@ -114,7 +114,7 @@ bash deploy.sh logs         # 查看日志
 还没有下载项目时，可以复制这一行开始（需已安装 Git、Docker 和 Compose v2）：
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web && cd codex-web && bash deploy.sh
 ```
 
 ## 部署后用什么账号和密码登录？

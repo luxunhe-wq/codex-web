@@ -72,11 +72,11 @@ Run as your normal Linux user, in the directory where you keep your projects:
 ```sh
 sudo apt update
 sudo apt install git python3 python3-venv
-git clone https://github.com/luxunhe-wq/codex-.git codex-web
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web
 cd codex-web
 ```
 
-Alternatively, [download the main-branch ZIP](https://github.com/luxunhe-wq/codex-/archive/refs/heads/main.zip)
+Alternatively, [download the main-branch ZIP](https://github.com/luxunhe-wq/codex-web/archive/refs/heads/main.zip)
 and extract it. Git checkout is recommended for later updates.
 
 ## Install and configure Codex
@@ -131,7 +131,7 @@ HTTPS, backup and upgrades. Docker users do not need the native steps below.
 From a fresh terminal with Git, Docker and Compose installed, paste:
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh --en
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web && cd codex-web && bash deploy.sh --en
 ```
 
 ## Which username and password do I use?

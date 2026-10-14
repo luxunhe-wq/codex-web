@@ -19,7 +19,7 @@ Codex 的 Linux 沙箱需要非特权用户命名空间。Compose 使用仓库�
 已安装 Git、Docker 和 Compose v2（需支持 `up --wait`）时，复制这一行：
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web && cd codex-web && bash deploy.sh
 ```
 
 已经下载项目的用户，只需在项目目录运行 `bash deploy.sh`。脚本会：
@@ -76,7 +76,7 @@ Confirm password:
 以下是引导脚本所封装的 Docker 操作，需要自行控制流程时使用：
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web
 cd codex-web
 cp .env.docker.example .env.docker
 docker compose --env-file .env.docker build

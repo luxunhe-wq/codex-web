@@ -22,7 +22,7 @@ sign-in is not imported automatically. You supply your own account/provider cred
 With Git, Docker and Compose v2 (supporting `up --wait`) installed, paste this line:
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web && cd codex-web && bash deploy.sh --en
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web && cd codex-web && bash deploy.sh --en
 ```
 
 From an existing checkout, run `bash deploy.sh --en`. The wizard prepares `.env.docker` and the runtime,
@@ -81,7 +81,7 @@ Change credentials after signing in under **Account and settings → Account and
 These are the Docker commands wrapped by the wizard, available when you want to control each step:
 
 ```sh
-git clone https://github.com/luxunhe-wq/codex-.git codex-web
+git clone https://github.com/luxunhe-wq/codex-web.git codex-web
 cd codex-web
 cp .env.docker.example .env.docker
 docker compose --env-file .env.docker build
