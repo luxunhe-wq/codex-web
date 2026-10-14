@@ -30,7 +30,7 @@ RUN test "$CODEX_WEB_UID" -gt 0 && test "$CODEX_WEB_GID" -gt 0 \
     && mkdir -p /data /workspace /home/node/.codex \
     && chown node:node /data /workspace /home/node/.codex
 
-COPY server.py configuration.py documents.py LICENSE THIRD_PARTY_NOTICES.md README.md /app/
+COPY server.py configuration.py documents.py extensions.py LICENSE THIRD_PARTY_NOTICES.md README.md /app/
 COPY static/ /app/static/
 COPY docs/ /app/docs/
 COPY deploy/seccomp-codex.json deploy/LICENSE.moby-profiles /app/deploy/

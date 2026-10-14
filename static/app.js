@@ -225,6 +225,39 @@ const EN_MESSAGES = {
   "未提供思考摘要": "Reasoning summary unavailable",
   "查看操作内容，决定是否继续。": "Review the operation and decide whether to continue.",
   "校验图片…": "Validating image…",
+  "插件与技能": "Plugins and skills",
+  "插件功能正在更新，请等当前任务完成后刷新网页": "Plugin support is being updated. Refresh the website after the current task finishes.",
+  "刷新列表": "Refresh list",
+  "管理当前项目可用的插件和技能，设置保存在服务器上的 Codex 中。": "Manage plugins and skills available to this project. Settings are saved in Codex on the server.",
+  "新增插件可先通过服务器终端的 codex plugin 命令安装；使用第三方服务的插件可能需要额外登录。": "Install new plugins with codex plugin in the server terminal. Plugins using third-party services may require additional sign-in.",
+  "正在加载插件与技能…": "Loading plugins and skills…",
+  "当前项目：{name}": "Current project: {name}",
+  "已安装插件": "Installed plugins",
+  "可用技能": "Available skills",
+  "尚未安装插件，可先在服务器上安装，再刷新列表。": "No installed plugins. Install them on the server, then refresh this list.",
+  "当前项目没有发现技能。": "No skills found for this project.",
+  "启用": "Enable",
+  "禁用": "Disable",
+  "已启用": "Enabled",
+  "已禁用": "Disabled",
+  "暂不可用": "Unavailable",
+  "在对话中使用": "Use in conversation",
+  "设置已保存，建议在新对话中使用": "Settings saved. Start a new conversation to use them.",
+  "请使用这个技能完成以下任务：": "Use this skill for the following task: ",
+  "部分插件或技能未能加载，请检查服务器配置后刷新。": "Some plugins or skills could not load. Check the server configuration and refresh.",
+  "当前 Codex 版本不支持此插件或技能接口，请升级 Codex": "This Codex version does not support this plugin or skill API. Upgrade Codex.",
+  "插件列表暂时无法读取，请稍后刷新重试": "The plugin list could not be loaded. Refresh and try again.",
+  "技能列表暂时无法读取，请稍后刷新重试": "The skill list could not be loaded. Refresh and try again.",
+  "插件设置暂时无法读取，请稍后刷新重试": "Plugin settings could not be updated. Refresh and try again.",
+  "技能设置暂时无法读取，请稍后刷新重试": "Skill settings could not be updated. Refresh and try again.",
+  "插件尚未安装或已被移除，请刷新列表": "This plugin is not installed or has been removed. Refresh the list.",
+  "技能不存在或已被移除，请刷新列表": "This skill is missing or has been removed. Refresh the list.",
+  "此插件当前不可用，请检查 Codex 账号或管理员配置": "This plugin is unavailable. Check your Codex account or administrator configuration.",
+  "请等所有任务完成后再修改插件或技能": "Wait for all tasks to finish before changing plugins or skills.",
+  "插件设置不正确": "Invalid plugin settings",
+  "技能设置不正确": "Invalid skill settings",
+  "技能选择不正确": "Invalid skill selection",
+  "所选技能已禁用或不属于当前项目，请重新选择": "The selected skill is disabled or unavailable in this project. Select it again.",
   "等待确认 {seconds} 秒": "Awaiting confirmation {seconds}s",
   "图片仍在传输或等待服务器确认，尚未完成上传。": "The image is still in transit or awaiting server confirmation. Upload is not complete yet.",
   "文件仍在传输或等待服务器处理，尚未完成上传。": "The file is still in transit or awaiting server processing. Upload is not complete yet.",
@@ -472,6 +505,7 @@ function setUILanguage(language, {remember = true} = {}) {
     for (const error of errors) appendError(error);
     $('scroll-area').scrollTop = scrollTop; pinToBottom = pinned;
     setConnection(!!state.connected);
+    renderExtensions();
   }
   for (const [node, source] of notices) if (source) node.textContent = translateError(source);
 }
@@ -1310,6 +1344,7 @@ async function sendMessage(event) {
   state.sending = true; pinToBottom = true; renderMessages();
   let targetThread = state.thread;
   const targetCwd = targetThread?.cwd || state.settings.cwd;
+  const skill = selectedSkill && selectedSkill.cwd === targetCwd && text.includes('$' + selectedSkill.name) ? selectedSkill : null;
   try {
     if (!targetThread) {
       const result = await api('/threads',{cwd: targetCwd}); targetThread = result.thread;
@@ -1321,7 +1356,8 @@ async function sendMessage(event) {
       }
     }
     const tid = targetThread.id;
-    await api('/threads/'+tid+'/send',{text, attachments: images.map(image => image.id)});
+    await api('/threads/'+tid+'/send',{text, attachments: images.map(image => image.id), ...(skill ? {skills: [skill.path]} : {})});
+    if (selectedSkill === skill) selectedSkill = null;
     for (const image of images) URL.revokeObjectURL(image.previewURL);
     scheduleThreadRefresh();
     if (selection === state.selection && state.items.some(item => item.id === pendingId)) {
@@ -1350,7 +1386,74 @@ function openSettings(tab='general') {
   $('general-error').textContent = ''; $('credentials-error').textContent = ''; selectSettingsTab(tab);
   closeSidebar(); $('settings-dialog').showModal();
 }
-function selectSettingsTab(tab) { for (const el of document.querySelectorAll('[data-panel]')) el.hidden = el.dataset.panel !== tab; for (const el of document.querySelectorAll('[data-tab]')) el.classList.toggle('active',el.dataset.tab === tab); }
+function selectSettingsTab(tab) {
+  for (const el of document.querySelectorAll('[data-panel]')) el.hidden = el.dataset.panel !== tab;
+  for (const el of document.querySelectorAll('[data-tab]')) el.classList.toggle('active',el.dataset.tab === tab);
+  if (tab === 'extensions') loadExtensions();
+}
+let extensionData = null, extensionLoading = false, extensionRequest = 0, extensionMutating = false, selectedSkill = null;
+async function loadExtensions(refresh = false) {
+  const cwd = state.thread?.cwd || state.settings.cwd;
+  const request = ++extensionRequest;
+  extensionLoading = true; extensionData = null; renderExtensions();
+  try {
+    const data = await api('/extensions?cwd=' + encodeURIComponent(cwd) + (refresh ? '&refresh=1' : ''));
+    if (request === extensionRequest) extensionData = data;
+  } catch (error) {
+    if (request === extensionRequest) extensionData = {cwd, error: error.status === 404 ? '插件功能正在更新，请等当前任务完成后刷新网页' : error.message};
+  } finally {
+    if (request === extensionRequest) { extensionLoading = false; renderExtensions(); }
+  }
+}
+function renderExtensions() {
+  const container = $('extensions-list'); if (!container) return;
+  container.replaceChildren();
+  $('refresh-extensions').disabled = extensionLoading || extensionMutating;
+  const cwd = extensionData?.cwd || state.thread?.cwd || state.settings.cwd || '';
+  $('extensions-project').textContent = t('当前项目：{name}', {name: cwd.split('/').filter(Boolean).at(-1) || '/'});
+  $('extensions-project').title = cwd;
+  $('extensions-status').textContent = extensionLoading ? t('正在加载插件与技能…') : translateError(extensionData?.error || '');
+  if (!extensionData || extensionData.error) return;
+  for (const [kind, title, empty] of [['plugins', '已安装插件', '尚未安装插件，可先在服务器上安装，再刷新列表。'], ['skills', '可用技能', '当前项目没有发现技能。']]) {
+    const heading = document.createElement('h4'); heading.textContent = t(title); container.append(heading);
+    const section = extensionData[kind];
+    if (!section || section.error || !section.items?.length) {
+      const notice = document.createElement('p'); notice.className = 'muted'; notice.textContent = translateError(section?.error || t(empty)); container.append(notice); continue;
+    }
+    if (section.warningCount) { const notice = document.createElement('p'); notice.className = 'muted'; notice.textContent = t('部分插件或技能未能加载，请检查服务器配置后刷新。'); container.append(notice); }
+    for (const item of section.items) {
+      const card = document.createElement('article'); card.className = 'extension-card';
+      const title = document.createElement('strong'); title.textContent = item.displayName || item.name; card.append(title);
+      const description = document.createElement('p'); description.textContent = item.description; card.append(description);
+      const meta = document.createElement('small'); meta.textContent = [kind === 'plugins' ? item.marketplace : item.name, item.version, t(item.available === false ? '暂不可用' : item.enabled ? '已启用' : '已禁用')].filter(Boolean).join(' · '); card.append(meta);
+      const actions = document.createElement('div'); actions.className = 'extension-actions';
+      const toggle = document.createElement('button'); toggle.type = 'button'; toggle.className = 'secondary';
+      toggle.textContent = t(item.enabled ? '禁用' : '启用'); toggle.disabled = extensionMutating || (!item.enabled && item.available === false);
+      toggle.setAttribute('aria-label', t(item.enabled ? '禁用' : '启用') + ' ' + item.name);
+      toggle.onclick = async () => {
+        if (extensionMutating) return;
+        extensionMutating = true; renderExtensions();
+        try {
+          await api('/extensions/' + (kind === 'plugins' ? 'plugin' : 'skill'), {cwd: extensionData.cwd, enabled: !item.enabled, ...(kind === 'plugins' ? {id: item.id} : {path: item.path})});
+          toast(t('设置已保存，建议在新对话中使用')); await loadExtensions(true);
+        } catch (error) { toast(error.message); }
+        finally { extensionMutating = false; renderExtensions(); }
+      };
+      actions.append(toggle);
+      if (kind === 'skills') {
+        const use = document.createElement('button'); use.type = 'button'; use.className = 'secondary'; use.textContent = t('在对话中使用'); use.disabled = !item.enabled || state.sending || extensionMutating;
+        use.onclick = () => {
+          selectedSkill = {...item, cwd: extensionData.cwd};
+          const draft = $('prompt').value.trim(); const mention = '$' + item.name;
+          $('prompt').value = (draft.includes(mention) ? draft : mention + ' ' + (draft || item.defaultPrompt || t('请使用这个技能完成以下任务：'))).slice(0, 100000);
+          $('settings-dialog').close(); resizePrompt(); $('prompt').focus(); updateRunState();
+        };
+        actions.append(use);
+      }
+      card.append(actions); container.append(card);
+    }
+  }
+}
 async function copyText(text) { try { if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text); else { const field = document.createElement('textarea'); field.value = text; document.body.append(field); field.select(); if (!document.execCommand('copy')) throw new Error(); field.remove(); } toast(t('已复制')); } catch { toast(t('复制失败，请选择文字手动复制')); } }
 
 function resizePrompt() {
@@ -1422,6 +1525,8 @@ function initializeApp() {
   $('sidebar-close').onclick = closeSidebar;
   $('sidebar-backdrop').onclick = closeSidebar;
   $('open-settings').onclick = () => openSettings();
+  $('open-extensions').onclick = () => openSettings('extensions');
+  $('refresh-extensions').onclick = () => loadExtensions(true);
   $('project-button').onclick = openProjectDialog;
   $('close-settings').onclick = () => $('settings-dialog').close();
   $('add-project').onclick = openProjectDialog;

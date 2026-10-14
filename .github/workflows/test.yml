@@ -41,6 +41,7 @@ jobs:
           python tests/browser_login_restore.py
           python tests/browser_images.py
           python tests/browser_upload_recovery.py
+          python tests/browser_extensions.py
           python tests/browser_files.py
           python tests/browser_projects.py
           python tests/browser_security.py

@@ -5,6 +5,7 @@
 !server.py
 !configuration.py
 !documents.py
+!extensions.py
 !static/
 !static/**
 !LICENSE

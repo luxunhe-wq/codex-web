@@ -31,6 +31,7 @@ from urllib.parse import urlparse, parse_qs, quote
 
 from PIL import Image
 from configuration import load_environment
+from extensions import Extensions
 
 ROOT = Path(__file__).resolve().parent
 DATA = Path(os.environ.get('CODEX_WEB_DATA', str(ROOT / 'data')))
@@ -1084,6 +1085,11 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
         session = self.auth()
+        if path == '/api/extensions':
+            query = parse_qs(urlparse(self.path).query)
+            cwd = str(project_directory(query.get('cwd', [store.settings()['cwd']])[0]))
+            self.json(Extensions(self.app.bridge, ApiError).snapshot(cwd, query.get('refresh') == ['1']))
+            return
         if path == '/api/me':
             self.json(self.workspace_data(session))
         elif path == '/api/projects':
@@ -1240,6 +1246,19 @@ class Handler(BaseHTTPRequestHandler):
             self.json({'attachment': attachment}, 201)
             return
         b = self.body()
+        if path in ('/api/extensions/plugin', '/api/extensions/skill'):
+            self.auth(mutate=True)
+            cwd = str(project_directory(b.get('cwd', store.settings()['cwd'])))
+            with self.app.turn_lock:
+                if store.one("SELECT id FROM threads WHERE status IN ('running','waiting')"):
+                    raise ApiError('请等所有任务完成后再修改插件或技能', 409)
+                extensions = Extensions(bridge, ApiError)
+                if path.endswith('/plugin'):
+                    extensions.set_plugin(cwd, b.get('id'), b.get('enabled'))
+                else:
+                    extensions.set_skill(cwd, b.get('path'), b.get('enabled'))
+            self.json({'ok': True})
+            return
         if path in ('/api/setup', '/api/login'):
             username, password = b.get('username', ''), b.get('password', '')
             with store.lock:
@@ -1388,6 +1407,7 @@ class Handler(BaseHTTPRequestHandler):
                         raise ApiError('会话已归档', 409)
                     if row['status'] in ('running', 'waiting'):
                         raise ApiError('请等待当前任务结束，或先停止任务', 409)
+                    skill_inputs = Extensions(bridge, ApiError).inputs(row['cwd'], b.get('skills', []))
                     images = []
                     with store.transaction():
                         for image_id in image_ids:
@@ -1408,6 +1428,7 @@ class Handler(BaseHTTPRequestHandler):
                         raise
                     s = store.settings()
                     inputs = ([{'type': 'text', 'text': text}] if text.strip() else [])
+                    inputs += skill_inputs
                     inputs += [{'type': 'localImage', 'path': str(store.attachment_directory / image['filename'])} for image in images if image['kind'] == 'image']
                     inputs += store.document_inputs(images)
                     public_attachments = [store.public_attachment(image) for image in images]

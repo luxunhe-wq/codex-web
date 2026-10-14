@@ -139,6 +139,36 @@ git clone https://github.com/luxunhe-wq/codex-web.git codex-web && cd codex-web 
 网页账号与 Codex 登录、模型 API 密钥相互独立。再次运行部署脚本、重启或正常升级会保留原账号，
 无需重新创建。登录后可在「账号与设置 → 账号与安全」中修改账号和密码。
 
+## 插件与技能
+
+在网页侧栏点击「插件与技能」，或进入「账号与设置 → 插件与技能」，可查看当前项目的已安装插件和技能，
+启用或禁用它们。开关保存在服务器的 Codex 配置中，刷新网页和重启后仍会保留。
+修改开关前需等待所有任务完成，建议在新对话中使用修改后的配置。
+
+点击技能的「在对话中使用」，输入框会加入技能名称；继续填写任务并发送，网页会同时传递 Codex 原生技能输入。
+项目技能按当前对话所在目录读取。插件和技能列表仅在打开管理页时加载，不拖慢登录和项目切换。
+
+新增插件目前通过同一运行用户的服务器终端安装，再回到网页刷新列表：
+
+```sh
+codex plugin --help
+codex plugin list
+# 替换为你已配置的市场及插件名称。
+codex plugin add 插件名@市场名
+```
+
+Docker 引导部署的用户在项目目录执行：
+
+```sh
+docker compose --env-file .env.docker exec codex-web codex plugin list
+docker compose --env-file .env.docker exec codex-web codex plugin add 插件名@市场名
+```
+
+Docker 中的插件保存在 `codex-config` 数据卷，宿主机插件不会自动进入容器。
+此功能已按 Codex 0.159.2 的接口验证；较旧版本不支持时，网页会提示升级。
+远程插件市场、第三方应用登录及插件权限取决于 Codex 账号和配置，网页版不会提供额外服务权限或额度。
+本版提供已安装插件管理和技能选择，尚未提供网页插件市场及第三方应用授权流程。
+
 ## 原生安装并启动网页
 
 在下载的 `codex-web` 目录内，以普通用户运行：
@@ -238,6 +268,7 @@ Codex 凭据保存在你自己的 Codex 配置目录，网页不会显示密钥�
 .venv/bin/python -m playwright install chromium
 .venv/bin/python tests/browser_workspace.py
 .venv/bin/python tests/browser_upload_recovery.py
+.venv/bin/python tests/browser_extensions.py
 python3 scripts/check_release.py --staged
 ```
 

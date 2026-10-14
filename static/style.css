@@ -153,6 +153,16 @@ svg.icon.codex-logo{fill:currentColor;stroke:none}
 /* The saved browser language is set in the head before the loading screen paints. */
 html[lang="en"] [data-startup-lang="zh-CN"], html:not([lang="en"]) [data-startup-lang="en"]{display:none}
 .auth-language{display:flex;justify-content:flex-end;margin-bottom:18px}
+.extensions-entry{display:flex;align-items:center;gap:12px;width:100%;padding:10px 13px;border:0;border-radius:8px;background:transparent;text-align:left;font-size:12px;color:var(--ink)}
+.extensions-entry:hover{background:var(--hover)}
+.extensions-header{display:flex;align-items:center;justify-content:space-between;gap:10px}.extensions-header h3{margin:0}
+.extensions-header button{white-space:nowrap;font-size:11px;padding:6px 10px}
+#extensions-list h4{margin:22px 0 12px;font-size:13px}
+.extension-card{padding:14px;margin:10px 0;border:1px solid var(--border);border-radius:9px;overflow-wrap:anywhere}
+.extension-card strong{font-size:13px}.extension-card p{font-size:12px;line-height:1.6;margin:7px 0;white-space:pre-wrap}.extension-card small{color:var(--muted);font-size:10px}
+.extension-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.extension-actions button{font-size:11px;padding:6px 10px}
+.extensions-note{margin-top:20px}
+@media(max-width:560px){.settings-nav{flex-wrap:wrap}.settings-nav button{flex:1 1 40%}.settings-content{max-height:calc(100dvh - 270px)}}
 .auth-language label{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;color:var(--muted)}
 .auth-language select{width:auto;padding:6px 9px;font-size:12px;background:var(--panel);color:var(--ink);border:1px solid var(--border);border-radius:7px}
 html[lang="en"] .composer-effort select{max-width:100px}

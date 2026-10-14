@@ -46,6 +46,7 @@ web installation steps below.
 - Scanned PDF pages supplied as images; previews, downloads and explicit extraction limits.
 - Remembered login, light/dark/system themes, compact mobile composer and themed loading screen.
 - Chinese/English interface with a language picker on the sign-in page and in settings; selection is remembered in each browser.
+- Installed plugin and skill management, persistent enable/disable switches and native skill selection for conversations.
 - Python backend, SQLite storage and plain HTML/CSS/JavaScript; no frontend build step.
 
 ## Requirements
@@ -158,6 +159,8 @@ change credentials under **Account and settings → Account and security**.
 
 ## Native quick start
 
+For persistent plugin/skill switches and selecting a skill in a conversation, see [Plugins and skills](PLUGINS.md).
+
 After downloading the repository and configuring Codex, run these commands inside `codex-web`:
 
 ```sh
@@ -228,6 +231,7 @@ The validated CLI version above is an observed compatibility baseline, not a min
 .venv/bin/python tests/browser_login_restore.py
 .venv/bin/python tests/browser_images.py
 .venv/bin/python tests/browser_upload_recovery.py
+.venv/bin/python tests/browser_extensions.py
 .venv/bin/python tests/browser_files.py
 ```
 

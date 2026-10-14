@@ -94,6 +94,10 @@ def main():
                'import sys; sys.path.insert(0,"/app"); from server import App; '
                'app=App(); app.bridge.start(); print("App Server initialized"); app.bridge.stop(); app.store.db.close()')
         assert 'App Server initialized' in result
+        extensions = api('/extensions?cwd=/workspace')
+        assert extensions['plugins']['supported'] and not extensions['plugins'].get('error')
+        assert extensions['skills']['supported'] and not extensions['skills'].get('error')
+        assert any(skill['name'] == 'skill-creator' for skill in extensions['skills']['items'])
         # Verify that project command execution works with the normal Codex sandbox inside Docker.
         docker('exec', name, 'codex', 'sandbox', '-c', 'sandbox_mode="workspace-write"', '--',
                'python', '-c', 'from pathlib import Path; Path("/workspace/sandbox-check.txt").write_text("sandbox worked")')
